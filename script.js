@@ -36,6 +36,41 @@ async function displayVideos(videos) {
   }
 }
 
+async function fetchRecommendedVideos() {
+  const response = await fetch(`${searchUrl}?part=snippet&type=video&maxResults=5&key=${apiKey}`);
+  const data = await response.json();
+  return data.items;
+}
+
+async function displayRecommendedVideos(videos) {
+  const recommendedVideosContainer = document.getElementById('recommended-videos-container');
+  recommendedVideosContainer.innerHTML = '<h2>Recommended Videos</h2>';
+  videos.forEach(video => {
+    const videoDiv = document.createElement('div');
+    videoDiv.classList.add('video');
+    videoDiv.innerHTML = `
+      <img src="${video.snippet.thumbnails.high.url}" alt="Thumbnail">
+      <div class="video-content">
+        <h2>${video.snippet.title}</h2>
+        <p>${video.snippet.description}</p>
+        <p><a href="https://www.youtube.com/watch?v=${video.id.videoId}" target="_blank">Watch on YouTube</a></p>
+      </div>
+    `;
+    recommendedVideosContainer.appendChild(videoDiv);
+  });
+}
+
+async function init() {
+  try {
+    const recommendedVideos = await fetchRecommendedVideos();
+    displayRecommendedVideos(recommendedVideos);
+  } catch (error) {
+    console.error('Error fetching recommended videos:', error);
+  }
+}
+
+init();
+
 async function searchVideos() {
   const query = document.getElementById('search-input').value;
   try {
